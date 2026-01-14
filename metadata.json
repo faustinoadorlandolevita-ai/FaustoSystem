@@ -1,0 +1,8 @@
+{
+  "name": "FaustoSystem - Staff & Team Module",
+  "description": "Comprehensive Staff and Team management for FaustoSystem, including attendance, performance, and 360 profiles.",
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ]
+}
