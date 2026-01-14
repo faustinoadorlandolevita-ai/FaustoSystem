@@ -218,7 +218,7 @@ const BillingModule: React.FC = () => {
       {/* Editor Modal */}
       {isEditorOpen && selectedInvoice && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-[2.5rem] w-full max-w-5xl shadow-2xl overflow-hidden flex flex-col h-[90vh]">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-5xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col h-[90vh]">
             <div className="p-10 border-b border-gray-50 bg-gray-50/30 flex justify-between items-center">
               <div>
                 <h3 className="text-2xl font-black text-gray-900 tracking-tight">
@@ -256,6 +256,24 @@ const BillingModule: React.FC = () => {
                       <option value="">Selecione o Cliente...</option>
                       {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Data de Emissão</label>
+                    <input 
+                      type="date"
+                      value={selectedInvoice.date}
+                      onChange={(e) => setSelectedInvoice({...selectedInvoice, date: e.target.value})}
+                      className="w-full px-5 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Data de Vencimento</label>
+                    <input 
+                      type="date"
+                      value={selectedInvoice.dueDate}
+                      onChange={(e) => setSelectedInvoice({...selectedInvoice, dueDate: e.target.value})}
+                      className="w-full px-5 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
                   </div>
                 </div>
 

@@ -28,7 +28,7 @@ export interface SubscriptionInfo {
   autoRenew: boolean;
 }
 
-export type AppointmentStatus = 'pending' | 'confirmed' | 'in_service' | 'completed' | 'cancelled' | 'noshow';
+export type AppointmentStatus = 'pending' | 'confirmed' | 'in_service' | 'completed' | 'cancelled' | 'noshow' | 'rescheduled';
 export type PricingType = 'fixed' | 'variable' | 'quote';
 export type BookingType = 'fixed_time' | 'queue' | 'manual';
 export type ClientStatus = 'active' | 'inactive' | 'blocked';
@@ -36,11 +36,30 @@ export type ClientType = 'individual' | 'company';
 
 export type StaffStatus = 'active' | 'inactive' | 'terminated';
 export type CommissionType = 'percentage' | 'fixed';
-export type AttendanceStatus = 'present' | 'absent' | 'late' | 'vacation' | 'sick_leave';
+export type AttendanceStatus = 'present' | 'absent' | 'late' | 'vacation' | 'sick_leave' | 'resignation' | 'justified_absence';
 export type PaymentStatus = 'pending' | 'paid' | 'late';
 
-export type InvoiceType = 'proforma' | 'invoice' | 'receipt' | 'credit_note';
-export type InvoiceStatus = 'draft' | 'pending' | 'paid' | 'partial' | 'cancelled';
+export interface CustomField {
+  id: string;
+  label: string;
+  type: 'text' | 'number' | 'select' | 'date' | 'time';
+  required: boolean;
+  options?: string[];
+}
+
+export interface NotificationLog {
+  channel: 'whatsapp' | 'email' | 'sms';
+  sentAt: string;
+  status: 'sent' | 'failed' | 'queued';
+  type: 'immediate' | 'reminder';
+}
+
+export interface ContactTemplateSet {
+  whatsapp: string;
+  emailSubject: string;
+  emailBody: string;
+  sms: string;
+}
 
 export interface TenantConfig {
   name: string;
@@ -51,18 +70,24 @@ export interface TenantConfig {
   locale: string;
   language: Language;
   isAdmin: boolean;
-  securityKey: string; // Nova chave de segurança editável
+  securityKey: string;
+  clientCustomFields: CustomField[];
+  appointmentCustomFields: CustomField[];
   subscription: SubscriptionInfo;
   schedulingRules: {
     maxDailyAppointments: number;
     minAdvanceBookingHours: number;
     minCancellationHours: number;
     allowClientReschedule: boolean;
+    reminderLeadTimeHours: number; // Tempo do alarme (ex: 24, 12, 1)
   };
   contactTemplates: {
-    whatsapp: string;
-    emailSubject: string;
-    emailBody: string;
+    pending: ContactTemplateSet;
+    confirmed: ContactTemplateSet;
+    cancelled: ContactTemplateSet;
+    completed: ContactTemplateSet;
+    rescheduled: ContactTemplateSet;
+    reminder: ContactTemplateSet; // Novo modelo de lembrete
     staffWhatsApp: string;
   };
 }
@@ -83,15 +108,6 @@ export interface Service {
   staffIds: string[];
   simultaneousLimit: number;
   isActive: boolean;
-}
-
-export interface CustomField {
-  id: string;
-  label: string;
-  type: 'text' | 'number' | 'select' | 'file' | 'date';
-  required: boolean;
-  options?: string[];
-  visibleInList: boolean;
 }
 
 export interface Client {
@@ -128,6 +144,7 @@ export interface Staff {
   name: string;
   photo?: string;
   phone: string;
+  whatsapp?: string;
   email: string;
   role: string;
   position: string;
@@ -139,10 +156,12 @@ export interface Staff {
   status: StaffStatus;
   tags: string[];
   hiredAt: string;
+  experienceDescription?: string;
+  experienceTime?: string;
   workingHours: {
     start: string;
     end: string;
-    daysOff: number[]; // 0-6 (Sun-Sat)
+    daysOff: number[];
   };
   location: {
     city: string;
@@ -156,11 +175,18 @@ export interface StaffPayment {
   staffId: string;
   description: string;
   amount: number;
+  baseSalary?: number;
+  extras?: number;
+  deductions?: number;
+  period?: string;
   dueDate: string;
   status: PaymentStatus;
   paidAt?: string;
   type: 'salary' | 'commission' | 'bonus' | 'other';
 }
+
+export type InvoiceType = 'invoice' | 'proforma' | 'receipt';
+export type InvoiceStatus = 'draft' | 'pending' | 'paid' | 'cancelled';
 
 export interface InvoiceItem {
   id: string;
@@ -199,14 +225,29 @@ export interface AttendanceRecord {
   checkIn?: string;
   checkOut?: string;
   notes?: string;
+  absenceDiscount?: number;
+  discountProcessed?: boolean;
+  
+  // Novos campos para as funcionalidades avançadas
+  expectedCheckIn?: string;
+  totalHours?: number;
+  totalDays?: number;
+  startDate?: string;
+  endDate?: string;
+  reason?: string;
+  attachmentUrl?: string;
+  justificationStatus?: 'pending' | 'approved' | 'completed';
 }
 
 export interface Appointment {
   id: string;
+  title?: string;
   clientId: string;
   serviceId: string;
   staffId: string;
   dateTime: string;
+  endTime: string;
+  location?: string;
   status: AppointmentStatus;
   type: BookingType;
   notes?: string;
@@ -215,4 +256,7 @@ export interface Appointment {
   isRecurring?: boolean;
   recurrenceRule?: string;
   history: { status: AppointmentStatus; updatedAt: string; note?: string }[];
+  notifications: NotificationLog[];
+  customData: Record<string, any>;
+  reminderSent: boolean; 
 }

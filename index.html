@@ -8,6 +8,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-color-rgb: 79, 70, 229;
+        }
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f9fafb;
@@ -23,6 +27,28 @@
             border-radius: 10px;
         }
     </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        indigo: {
+                            50: 'rgba(var(--primary-color-rgb), 0.05)',
+                            100: 'rgba(var(--primary-color-rgb), 0.1)',
+                            200: 'rgba(var(--primary-color-rgb), 0.2)',
+                            300: 'rgba(var(--primary-color-rgb), 0.3)',
+                            400: 'rgba(var(--primary-color-rgb), 0.4)',
+                            500: 'rgba(var(--primary-color-rgb), 0.5)',
+                            600: 'var(--primary-color)',
+                            700: 'rgba(var(--primary-color-rgb), 0.8)',
+                            800: 'rgba(var(--primary-color-rgb), 0.9)',
+                            900: 'rgba(var(--primary-color-rgb), 1.0)',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 <script type="importmap">
 {
   "imports": {
